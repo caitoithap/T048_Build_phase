@@ -1,0 +1,247 @@
+[
+  {
+    "name": "car",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none",
+          "red"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "truck",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bus",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "train",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "person",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "rider",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bike",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "motor",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "none"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "traffic light",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "green",
+          "none",
+          "red",
+          "yellow"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "traffic sign",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "truncated",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      },
+      {
+        "name": "trafficLightColor",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "none",
+        "values": [
+          "green",
+          "none"
+        ]
+      }
+    ]
+  }
+]
