@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Model weights and exported models
+*.pt
+*.onnx
+
+# Generated pipeline output
+/output/*
+!/output/.gitkeep
+
+# Streamlit local secrets
+.streamlit/secrets.toml
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
