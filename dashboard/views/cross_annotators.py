@@ -3,16 +3,12 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+import catalog
 from data_layer import store
 from ui import charts
 from ui import components as ui
 
-META = dict(
-    title="Annotator chấm annotator", icon=":material/compare_arrows:", path="cham-cheo-annotator",
-    question="Không có đáp án thì ai lệch khỏi nhóm, và vật nào khiến các annotator bất đồng?",
-    tables=["pair_agreement", "object_votes", "gt_scores", "image_scores"],
-    requires={"pair_agreement": []}, filters={"class", "size", "annotator"},
-)
+META = catalog.PAGES["cham-cheo-annotator"]
 COUNTS = ["n_same", "n_class_diff", "n_box_off", "n_only_a", "n_only_b"]
 IN_GT, NOT_IN_GT, UNCHECKED = "Có trong đáp án", "Không có trong đáp án", "Chưa đối chiếu đáp án"
 GAPS = {"n_class_diff": "Khác class", "n_box_off": "Lệch box", "n_only_a": "Chỉ mình vẽ", "n_only_b": "Chỉ bên kia vẽ"}

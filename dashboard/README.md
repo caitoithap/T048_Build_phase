@@ -16,6 +16,50 @@ streamlit run dashboard/app.py --server.address localhost
 Cần `sample_data_output1/annotations.xml` (để sinh số giả) và `images.zip` (để hiện ảnh).
 Đã kiểm tra với Python 3.13, Streamlit 1.55, Altair 6.0.
 
+## Giao diện mới: FastAPI + React (đang chuyển)
+
+Streamlit không dùng cho bản deploy chính thức, nên dashboard đang chuyển sang hai phần:
+
+- `api/` (FastAPI) dùng lại nguyên `data_layer/` và `ui/charts.py`. Mỗi trang phân tích trả về một
+  danh sách hàng khối (KPI, biểu đồ, bảng, thẻ chờ dữ liệu); biểu đồ là spec Vega-Lite do Altair dựng.
+- `web/` (React + Vite + TypeScript, Tailwind, TanStack Query, vega-embed) chỉ vẽ các khối đó.
+  Bộ lọc và công tắc dữ liệu giả nằm trên URL, nên chia link là giữ nguyên bộ lọc.
+
+Chạy khi phát triển, hai cửa sổ dòng lệnh:
+
+```
+cd dashboard
+uvicorn api.main:app --reload --port 8000
+
+cd dashboard/web
+npm install
+npm run dev          # mở http://localhost:5173
+```
+
+Vite chuyển mọi request `/api` sang `http://127.0.0.1:8000`. API chạy cổng khác thì đặt biến môi
+trường `M22_API_URL` trước `npm run dev`, ví dụ `M22_API_URL=http://127.0.0.1:8010`.
+
+Đã chuyển: Tổng quan, Chi tiết issue, Nguồn dữ liệu. Các trang khác hiện "sắp có" và vẫn xem được ở
+bản Streamlit; hai bản dùng chung `data_layer/` và `catalog.py` nên chạy song song được.
+
+Chuyển thêm một trang phân tích:
+
+1. Tạo `api/pages/<tên>.py` có hàm `build(data, filters) -> list[hàng]`, chép phần tính số từ
+   `views/<tên>.py` và đổi `ui.chart(...)`, `ui.kpi_row(...)`, `ui.ready(...)` sang hàm cùng tên trong
+   `api/blocks.py`.
+2. Thêm vào `BUILDERS` trong `api/pages/__init__.py`. Frontend tự nhận trang; chỉ cần thêm icon của trang
+   (tên Material trong `catalog.py`) vào `web/src/lib/icons.tsx` nếu chưa có.
+3. Trang cần tương tác riêng (chọn một mục, xem ảnh) thì làm như Chi tiết issue: route riêng trong
+   `api/main.py` và một trang trong `web/src/pages/`.
+
+Khi mọi trang đã chuyển thì xoá `app.py`, `views/`, `ui/components.py` và hai đoạn "cầu nối Streamlit"
+trong `data_layer/store.py` và `ui/theme.py`.
+
+Giao diện: token màu và chữ ở `web/src/index.css`; màu xám và phông của biểu đồ ở `ui/theme.py` phải khớp
+với token đó. Font Be Vietnam Pro (@fontsource) và icon lucide được đóng gói cùng bản build, không tải từ
+ngoài, nên VPS không cần ra internet. Dấu bốn góc khung (lớp `.bracketed`) chỉ dành cho thứ đang được chú
+ý; dải sọc hổ phách chỉ dành cho số giả.
+
 ## Các trang
 
 | Nhóm | Trang | Trả lời câu hỏi |
@@ -68,14 +112,19 @@ khớp của chặng A, rồi `patches`, rồi `recommendations`.
 
 ```
 dashboard/
-  app.py              điểm vào: điều hướng, tiêu đề, hàng lọc, công tắc chế độ
+  app.py              điểm vào bản Streamlit: điều hướng, tiêu đề, hàng lọc, công tắc chế độ
+  catalog.py          danh mục trang (tiêu đề, câu hỏi, bảng dùng, bộ lọc), dùng chung cho Streamlit và API
   settings.py         đường dẫn, bảng mã và nhãn, ngưỡng
-  data_layer/
+  data_layer/         không phụ thuộc giao diện nào
     schema.py         hợp đồng 12 bảng: cột bắt buộc, cột tuỳ chọn theo chặng, cột dùng mã
     codec.py          đổi mã sang nhãn và kiểm tra giá trị; mọi bảng đều đi qua đây
     mock.py           sinh số giả từ bộ đáp án, xuất ra đúng dạng hợp đồng
-    store.py          chọn chế độ thật hoặc giả, nạp bảng
+    store.py          chọn chế độ thật hoặc giả, nạp bảng, báo phần nào còn thiếu
+    filters.py        bộ lọc chung
+    contract.py       bảng trạng thái và bảng cột của hợp đồng, cho trang Nguồn dữ liệu
     metrics.py        đếm và chia theo bộ lọc
+  api/                FastAPI: main.py (route), params.py (bộ lọc trên URL), blocks.py (khối), pages/
+  web/                React: src/components (khối, hàng lọc, khung), src/pages, src/lib (API, URL, theme)
   ui/
     theme.py          màu theo chế độ sáng, tối
     charts.py         các dạng biểu đồ dùng lại

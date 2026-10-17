@@ -2,45 +2,13 @@
 import pandas as pd
 import streamlit as st
 
+import catalog
 import settings as S
-from data_layer import schema, store
+from data_layer import contract, schema, store
 from ui import components as ui
 
-META = dict(
-    title="Nguồn dữ liệu", icon=":material/database:", path="nguon-du-lieu",
-    question="Dashboard đang chạy trên bảng nào, bảng nào còn thiếu, và pipeline cần nộp những cột gì?",
-    tables=list(schema.TABLES), filters=set(),
-)
+META = catalog.PAGES["nguon-du-lieu"]
 ROW_PX = 35  # chiều cao một dòng, để bảng trạng thái hiện đủ không phải cuộn
-
-
-def _status(data: store.Tables) -> pd.DataFrame:
-    rows = []
-    for name, spec in schema.TABLES.items():
-        note = data.problems.get(name, "")
-        waiting = data.missing.get(name, [])
-        if not note and waiting:
-            # Gom cột còn thiếu theo chặng sinh ra nó: đọc là biết còn chờ chặng nào.
-            per_stage = pd.Series([spec["optional"][c] for c in waiting]).value_counts(sort=False)
-            note = "Còn chờ: " + ", ".join(f"{stage} ({n} cột)" for stage, n in per_stage.items())
-        rows.append({
-            "Bảng": name, "Nguồn": data.origin[name],
-            "Số dòng": f"{len(data[name]):,}" if data.available(name) else "–",
-            "Chặng sinh ra": spec["stage"], "Ghi chú": note or "Đủ cột",
-        })
-    return pd.DataFrame(rows)
-
-
-def _columns(name: str, spec: dict) -> pd.DataFrame:
-    optional, enums, bools = spec.get("optional", {}), spec.get("enums", {}), spec.get("bools", [])
-    rows = []
-    for col, meaning in spec["columns"].items():
-        if col in enums:
-            values = "Mã: " + ", ".join(S.VOCAB[enums[col]])
-        else:
-            values = "true / false (hoặc 1 / 0)" if col in bools else ""
-        rows.append((col, "Tuỳ chọn · " + optional[col] if col in optional else "Bắt buộc", meaning, values))
-    return pd.DataFrame(rows, columns=["Cột", "Khi nào cần", "Ý nghĩa", "Giá trị hợp lệ"])
 
 
 def render():
@@ -64,7 +32,7 @@ def render():
             if not problem.startswith("chưa có file"):
                 st.warning(f"Bảng `{name}` bị từ chối: {problem}.", icon=":material/warning:")
 
-    status = _status(data)
+    status = contract.status(data)
     ui.table("Trạng thái từng bảng", status, height=ROW_PX * (len(status) + 1) + 3,
              note="Bảng chỉ cần đủ cột bắt buộc là được nhận. Cột tuỳ chọn bổ sung dần theo từng chặng.",
              column_config={"Bảng": st.column_config.TextColumn("Bảng", width="medium"),
@@ -99,4 +67,4 @@ def render():
         with st.expander(f"{name} · {spec['title']} · {n_required} cột bắt buộc, "
                          f"{len(spec['columns']) - n_required} tuỳ chọn"):
             st.write(spec["desc"])
-            st.dataframe(_columns(name, spec), hide_index=True, width="stretch")
+            st.dataframe(contract.columns(name), hide_index=True, width="stretch")

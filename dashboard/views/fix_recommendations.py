@@ -2,16 +2,13 @@
 import pandas as pd
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import store
 from ui import charts
 from ui import components as ui
 
-META = dict(
-    title="Khuyến nghị vs kết quả pilot", icon=":material/science:", path="khuyen-nghi-pilot",
-    question="Khuyến nghị nào đã được áp dụng, và lỗi của cụm đó có giảm sau pilot không?",
-    tables=["recommendations"], requires={"recommendations": []}, filters={"class"},
-)
+META = catalog.PAGES["khuyen-nghi-pilot"]
 MIN_CLUSTER = 10  # dưới ngần này issue thì thay đổi của cụm chưa đủ tin
 DASH = "–"  # ô không đo được ghi gạch ngang thay vì để trống, để không bị đọc nhầm là 0
 

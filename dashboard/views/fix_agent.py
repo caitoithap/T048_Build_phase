@@ -3,16 +3,13 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import store
 from ui import charts, images, theme
 from ui import components as ui
 
-META = dict(
-    title="Agent đề xuất vs người áp dụng", icon=":material/smart_toy:", path="sua-agent",
-    question="Đề xuất sửa của agent có đúng không, và người duyệt có lọc được đề xuất sai?",
-    tables=["patches", "issues"], requires={"patches": []}, filters={"run", "class", "annotator"},
-)
+META = catalog.PAGES["sua-agent"]
 HUMAN = S.DECISIONS[:3]  # ba quyết định do người đưa ra
 ACCEPTED = S.DECISIONS[0]
 RIGHT, WRONG = "Agent đề xuất đúng", "Agent đề xuất sai"

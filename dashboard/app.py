@@ -7,6 +7,7 @@ import streamlit as st
 
 st.set_page_config(page_title="M22 · Issue Analytics", page_icon=":material/monitoring:", layout="wide")
 
+import catalog  # noqa: E402
 from data_layer import store  # noqa: E402
 from ui import components as ui  # noqa: E402
 from views import (  # noqa: E402
@@ -14,17 +15,16 @@ from views import (  # noqa: E402
     fix_recommendations, issue_detail, overview, top_errors,
 )
 
-SECTIONS = {
-    "Theo đề M22": [overview, top_errors, classes, annotators],
-    "Chấm chéo": [cross_annotators, cross_reviewers],
-    "Đề xuất vs sửa": [fix_annotator, fix_agent, fix_recommendations],
-    "Tra cứu": [issue_detail, data_status],
-}
+VIEWS = {module.META["path"]: module for module in (
+    annotators, classes, cross_annotators, cross_reviewers, data_status, fix_agent, fix_annotator,
+    fix_recommendations, issue_detail, overview, top_errors,
+)}
 
 pages, meta_of = {}, {}
-for section, modules in SECTIONS.items():
+for section, paths in catalog.SECTIONS.items():
     pages[section] = []
-    for module in modules:
+    for path in paths:
+        module = VIEWS[path]
         meta = module.META
         meta_of[meta["title"]] = meta
         pages[section].append(st.Page(module.render, title=meta["title"], icon=meta["icon"],

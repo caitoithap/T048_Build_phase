@@ -1,15 +1,12 @@
 """Top lỗi: loại lỗi nào nhiều nhất, lặp lại nhiều nhất và xử lý lâu nhất."""
 import streamlit as st
 
+import catalog
 from data_layer import store
 from ui import charts, theme
 from ui import components as ui
 
-META = dict(
-    title="Top lỗi", icon=":material/leaderboard:", path="top-loi",
-    question="Loại lỗi nào xuất hiện nhiều nhất, và loại nào cứ lặp lại?",
-    tables=["issues"], requires={"issues": []}, filters={"run", "class", "size", "annotator"},
-)
+META = catalog.PAGES["top-loi"]
 REPEAT, FIRST = "Lặp lại", "Lần đầu"
 
 

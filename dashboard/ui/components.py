@@ -1,46 +1,19 @@
 """Khung trang dùng chung: tiêu đề, bộ lọc, thẻ KPI, thẻ biểu đồ, và kiểm tra dữ liệu đã có chưa."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import pandas as pd
 import streamlit as st
 
 import settings as S
-from data_layer import schema, store
+from data_layer import store
+from data_layer.filters import Filters
 from ui import theme
 
 _FILTER_NAMES = {"run": "Lần chạy", "class": "Class", "size": "Cỡ box", "annotator": "Annotator"}
 _FILTER_KEYS = ("f_scope", "f_class", "f_size", "f_annotator", "f_hide_sign", "f_tables")
+_BADGE = {"mock": (":material/science:", "orange"), "partial": (":material/hourglass_empty:", "blue"),
+          "real": (":material/verified:", "green")}
 _CSS = "<style>.block-container{padding-top:2.4rem;padding-bottom:3rem}</style>"
-
-
-@dataclass(frozen=True)
-class Filters:
-    runs: tuple = ()
-    classes: tuple = ()
-    sizes: tuple = ()
-    annotators: tuple = ()
-    hide_sign: bool = False
-    show_tables: bool = False
-
-    def apply(self, df: pd.DataFrame, runs: bool = True) -> pd.DataFrame:
-        """Lọc theo những chiều mà bảng có cột tương ứng. `runs=False` để giữ mọi lần chạy."""
-        keep = pd.Series(True, index=df.index)
-        if runs and self.runs and "run" in df:
-            keep &= df["run"].isin(self.runs)
-        if "class_name" in df:
-            if self.classes:
-                keep &= df["class_name"].isin(self.classes)
-            if self.hide_sign:
-                keep &= df["class_name"] != "traffic sign"
-        if self.sizes and "size_bucket" in df:
-            keep &= df["size_bucket"].isin(self.sizes)
-        if self.annotators:
-            for col in ("annotator", "annotator_a", "annotator_b"):
-                if col in df:
-                    keep &= df[col].isin(self.annotators)
-        return df[keep]
 
 
 def keep_filter_state() -> None:
@@ -63,16 +36,7 @@ def ready(data: store.Tables, title: str | None = None, **needs: list[str]) -> b
     Đủ thì trả True. Thiếu thì vẽ một thẻ nói rõ còn chờ gì và trả False; có `title` thì thẻ
     mang tiêu đề đó để giữ nguyên bố cục trang.
     """
-    gaps = []
-    for table, cols in needs.items():
-        spec = schema.TABLES[table]
-        if not data.available(table):
-            gaps.append(f"Chưa dùng được bảng `{table}` ({spec['stage']}): {data.problems.get(table, 'không rõ')}.")
-            continue
-        lacking = [c for c in cols if c in data.missing.get(table, ())]
-        if lacking:
-            listed = ", ".join(f"`{c}` ({spec['optional'][c]})" for c in lacking)
-            gaps.append(f"Bảng `{table}` chưa có cột {listed}.")
+    gaps = data.gaps(**needs)
     if not gaps:
         return True
     message = " ".join(gaps)
@@ -98,17 +62,10 @@ def page_header(meta: dict, data: store.Tables) -> None:
     with left:
         st.header(meta["title"], anchor=False)
         st.caption(meta["question"])
-    used = meta["tables"]
-    absent = [t for t in used if not data.available(t)]
+    kind, label, hint = data.badge(meta["tables"])
+    icon, color = _BADGE[kind]
     with right.container(horizontal=True, horizontal_alignment="right"):
-        if data.mode == store.MOCK:
-            st.badge("Dữ liệu giả", icon=":material/science:", color="orange",
-                     help="Mọi con số trên trang này là số tự sinh, không phải kết quả đo.")
-        elif absent:
-            st.badge(f"Dữ liệu thật · thiếu {len(absent)}/{len(used)} bảng", icon=":material/hourglass_empty:",
-                     color="blue", help="Bảng chưa có: " + ", ".join(absent))
-        else:
-            st.badge("Dữ liệu thật", icon=":material/verified:", color="green")
+        st.badge(label, icon=icon, color=color, help=hint)
 
 
 def filter_bar(applicable: set[str], annotators: list[str]) -> Filters:

@@ -1,17 +1,13 @@
 """Class khó: class nào hay bị mở issue, và bị loại lỗi gì."""
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import metrics, store
 from ui import charts
 from ui import components as ui
 
-META = dict(
-    title="Class khó", icon=":material/category:", path="class-kho",
-    question="Class nào khó gán nhất, và mỗi class hay dính loại lỗi nào?",
-    tables=["issues", "workload"], requires={"issues": [], "workload": []},
-    filters={"run", "class", "size", "annotator"},
-)
+META = catalog.PAGES["class-kho"]
 RATE = "Issue / 100 vật"
 
 

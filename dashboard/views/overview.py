@@ -1,17 +1,13 @@
 """Tổng quan: năm con số chính, xu hướng theo job và ba bảng xếp hạng ngắn."""
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import metrics, store
 from ui import charts
 from ui import components as ui
 
-META = dict(
-    title="Tổng quan", icon=":material/space_dashboard:", path="tong-quan",
-    question="Chất lượng gán nhãn đang ở đâu, và hai KPI của đề (lỗi lặp lại, thời gian xử lý) là bao nhiêu?",
-    tables=["issues", "workload"], requires={"issues": [], "workload": []},
-    filters={"run", "class", "size", "annotator"},
-)
+META = catalog.PAGES["tong-quan"]
 RATE = "Issue trên 100 vật đã review"
 
 

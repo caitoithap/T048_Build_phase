@@ -1,17 +1,13 @@
 """Annotator: ai cần hỗ trợ, cần hỗ trợ về loại lỗi gì."""
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import metrics, store
 from ui import charts, theme
 from ui import components as ui
 
-META = dict(
-    title="Annotator", icon=":material/group:", path="annotator",
-    question="Annotator nào cần hỗ trợ, và cần hỗ trợ về loại lỗi gì?",
-    tables=["issues", "workload", "annotators"], requires={"issues": [], "workload": []},
-    filters={"run", "class", "size", "annotator"},
-)
+META = catalog.PAGES["annotator"]
 RATE = "Issue / 100 vật"
 NEEDS_HELP = "Cần hỗ trợ"
 

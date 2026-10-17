@@ -74,12 +74,14 @@ TYPE_TO_GROUP = {ERROR_TYPE_LABELS[t]: ERROR_GROUP_LABELS[g] for t, g in ERROR_T
 
 RUN_B1, RUN_CTRL, RUN_PILOT = (RUN_LABELS[k] for k in ("batch1", "batch2_control", "batch2_pilot"))
 # Lô 2 chạy hai lần trên cùng ảnh, nên không bao giờ gộp đối chứng với pilot.
-RUN_SCOPES = {
-    "Lô 1 + lô 2 đối chứng": (RUN_B1, RUN_CTRL),
-    "Chỉ lô 1": (RUN_B1,),
-    "Chỉ lô 2 đối chứng": (RUN_CTRL,),
-    "Chỉ lô 2 pilot": (RUN_PILOT,),
+# Mã phạm vi -> (nhãn, các lần chạy). Mã dùng trên URL của frontend, nhãn hiện trên giao diện.
+RUN_SCOPE_CODES = {
+    "b1_ctrl": ("Lô 1 + lô 2 đối chứng", (RUN_B1, RUN_CTRL)),
+    "b1": ("Chỉ lô 1", (RUN_B1,)),
+    "ctrl": ("Chỉ lô 2 đối chứng", (RUN_CTRL,)),
+    "pilot": ("Chỉ lô 2 pilot", (RUN_PILOT,)),
 }
+RUN_SCOPES = dict(RUN_SCOPE_CODES.values())
 
 ARM_ANNOTATOR, ARM_AGENT = FIX_ARM_LABELS["annotator"], FIX_ARM_LABELS["agent"]
 ACTIONS = list(ACTION_LABELS.values())

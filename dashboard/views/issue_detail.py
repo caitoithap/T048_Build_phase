@@ -2,16 +2,13 @@
 import pandas as pd
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import store
 from ui import images, theme
 from ui import components as ui
 
-META = dict(
-    title="Chi tiết issue", icon=":material/pageview:", path="chi-tiet-issue",
-    question="Một issue cụ thể trông thế nào: ảnh, comment, loại lỗi, nguồn được quy và cách nó được xử lý?",
-    tables=["issues", "patches"], requires={"issues": []}, filters={"run", "class", "size", "annotator"},
-)
+META = catalog.PAGES["chi-tiet-issue"]
 ALL = "Tất cả"
 MAX_LISTED = 500
 ROW_PX = 35  # chiều cao một dòng của bảng, để bảng thông tin hiện đủ không phải cuộn

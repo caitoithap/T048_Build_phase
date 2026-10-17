@@ -2,17 +2,13 @@
 import pandas as pd
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import metrics, store
 from ui import charts
 from ui import components as ui
 
-META = dict(
-    title="Reviewer chấm annotator", icon=":material/rate_review:", path="cham-cheo-reviewer",
-    question="Issue nhiều là do annotator yếu hay do reviewer khó?",
-    tables=["issues", "workload", "review_assignments", "reviewer_overlap", "reviewers"],
-    requires={"issues": [], "workload": []}, filters={"run", "class", "size", "annotator"},
-)
+META = catalog.PAGES["cham-cheo-reviewer"]
 BOTH, ONLY_A, ONLY_B = "Cả hai cùng báo", "Chỉ người thứ nhất", "Chỉ người thứ hai"
 RATE = "Issue / 100 vật"
 

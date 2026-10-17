@@ -3,18 +3,13 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+import catalog
 import settings as S
 from data_layer import store
 from ui import charts
 from ui import components as ui
 
-META = dict(
-    title="Reviewer yêu cầu vs annotator sửa", icon=":material/build:", path="sua-annotator",
-    question="Sau khi reviewer yêu cầu sửa, annotator có sửa đúng điều được yêu cầu không?",
-    tables=["issues"],
-    requires={"issues": ["requested_action", "fix_arm", "fix_outcome", "observed_change"]},
-    filters={"run", "class", "size", "annotator"},
-)
+META = catalog.PAGES["sua-annotator"]
 CHANGES = [*S.ACTIONS, S.NO_CHANGE]
 
 
