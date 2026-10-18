@@ -8,8 +8,7 @@
 - **Học viên đại diện:** Nguyễn Trọng Hùng (Mã số: 2A202602096)  
 - **Chương trình:** VinUni AI20K – AI Thực Chiến (Build Phase Cohort 4, Track L2-L3)  
 - **Repository:** [`https://github.com/caitoithap/T048_Build_phase.git`](https://github.com/caitoithap/T048_Build_phase.git)  
-- **Thư mục làm việc:** `D:\AITC\T048_Build_phase`  
-- **Ngày cập nhật:** 15/10/2026 (Mốc đánh giá Chặng 1 / Tuần 1)  
+- **Ngày cập nhật:** 18/10/2026 (bổ sung mục 4.6: chuyển dashboard sang FastAPI + React, bộ kiểm thử tự động)  
 
 ---
 
@@ -134,6 +133,16 @@ Module `src/qc_agent.py` và `src/analytics_mart.py`:
 - Toàn bộ pipeline suy luận (`src/detector.py`, `src/model_assisted_qc.py`, `src/qc_rules.py`) đều được tối ưu hóa cho phần cứng CPU tiêu chuẩn (Intel Core i5/i7, AMD Ryzen).
 - Đã xử lý triệt để lỗi xung đột DLL trên Windows (`os.add_dll_directory` và `ctypes.CDLL` preloading cho `libiomp5md.dll`, `c10.dll`, `torch_cpu.dll`).
 - Bất kỳ thành viên nào trong nhóm hoặc giám khảo đều có thể khởi chạy ứng dụng trơn tru trên laptop cá nhân.
+
+### 4.6 Chuyển Dashboard Sang FastAPI + React và Bộ Kiểm Thử Tự Động (cập nhật 18/10/2026)
+Streamlit không dùng cho bản deploy chính thức, nên nhóm đã chuyển dashboard sang kiến trúc hai phần:
+- **Backend `dashboard/api/` (FastAPI):** dùng lại nguyên `data_layer/` và `ui/charts.py`. Mỗi trang phân tích trả về danh sách hàng khối (KPI, biểu đồ Vega-Lite, bảng, thẻ chờ dữ liệu, ghi chú mô phỏng).
+- **Frontend `dashboard/web/` (React + Vite + TypeScript):** chỉ vẽ các khối đó; bộ lọc và công tắc dữ liệu giả nằm trên URL nên chia link là giữ nguyên bộ lọc.
+- **Tiến độ:** đã chuyển đủ **11/11 trang**. 9 trang phân tích (Tổng quan, Top lỗi, Class khó, Annotator, hai trang chấm chéo, ba trang đề xuất vs sửa) đăng ký trong `BUILDERS`; Chi tiết issue và Nguồn dữ liệu có route riêng. Riêng trang "Agent đề xuất vs người áp dụng" chưa có khung xem ảnh trước/sau của từng bản vá; ảnh vẫn xem được ở trang Chi tiết issue.
+- **Khởi chạy:** `./run_dashboard.sh` (API cổng 8000, giao diện `http://localhost:5173`).
+- **Chuẩn bị triển khai (Vercel):** frontend React lên CDN của Vercel, `/api/*` chạy trong một Python Function (`api/index.py` bọc app FastAPI), cùng domain nên không cần CORS. Đã có `vercel.json`, `.vercelignore`, `api/requirements.txt` (ghim phiên bản, không torch/pyarrow, ước tính ~215 MB so với giới hạn 250 MB) và test `tests/test_vercel_config.py`; đã kiểm tra trên Python 3.12. Phương án dự phòng VPS có sẵn trong `deploy/`. Chưa deploy nên chưa có URL và kết quả smoke test.
+- **Kiểm thử:** thư mục `tests/` gồm 5 bộ (QC rules, data layer, API, CLI, cấu hình Vercel), **59/59 test pass**. Bộ API gọi từng trang với cả dữ liệu thật lẫn dữ liệu giả, ở chế độ sáng và tối, và kiểm tra mọi trang đều được đánh dấu đã chuyển.
+- **Sửa lỗi cấu hình:** đồng bộ hằng số mặc định trong `config.py` cho `src/detector.py` và `src/qc_filter.py`; thêm `CVAT_SERVER_URL/USERNAME/PASSWORD` (đọc từ biến môi trường) để `src/cvat_uploader.py` import được; `cli.py` tự nạp `sample_data_output1/annotations.xml` khi chưa có file pre-annotation và tắt được chế độ CVAT giả bằng `--no-mock-cvat`.
 
 ---
 
