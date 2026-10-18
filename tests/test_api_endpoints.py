@@ -51,3 +51,28 @@ def test_api_data_status_endpoint(client):
     assert "columns" in data["status"]
     assert "rows" in data["status"]
     assert len(data["status"]["rows"]) == 12
+
+ANALYTICS_PAGES = ["tong-quan", "top-loi", "class-kho", "annotator", "cham-cheo-annotator",
+                   "cham-cheo-reviewer", "sua-annotator", "sua-agent", "khuyen-nghi-pilot"]
+
+
+@pytest.mark.parametrize("dark", [False, True])
+@pytest.mark.parametrize("demo", [False, True])
+@pytest.mark.parametrize("path", ANALYTICS_PAGES)
+def test_api_analytics_pages(client, path, demo, dark):
+    response = client.get(f"/api/pages/{path}", params={"demo": demo, "dark": dark})
+    assert response.status_code == 200, response.text
+    rows = response.json()["rows"]
+    assert rows
+    for row in rows:
+        assert len(row["widths"]) == len(row["blocks"])
+        assert all("type" in b for b in row["blocks"])
+
+
+def test_api_meta_all_analytics_ported(client):
+    pages = [p for s in client.get("/api/meta").json()["sections"] for p in s["pages"]]
+    assert all(p["ported"] for p in pages)
+
+
+def test_api_unknown_page_404(client):
+    assert client.get("/api/pages/khong-co").status_code == 404
