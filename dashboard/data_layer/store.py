@@ -40,6 +40,9 @@ class Tables:
     def __getitem__(self, name: str) -> pd.DataFrame:
         return self.frames[name]
 
+    def __contains__(self, name: str) -> bool:
+        return name in self.frames
+
     def available(self, name: str) -> bool:
         return name in self.frames
 
