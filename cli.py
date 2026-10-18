@@ -18,7 +18,8 @@ def main():
     parser.add_argument("--student", type=str, default="Nguyễn Trọng Hùng", help="Student / Annotator Name")
     parser.add_argument("--task-id", type=str, default="108361", help="CVAT Task ID for live ingestion")
     parser.add_argument("--cvat-url", type=str, default="https://app.cvat.ai", help="CVAT Server URL")
-    parser.add_argument("--mock-cvat", action="store_true", default=True, help="Simulate CVAT API Live Ingestion Mode")
+    parser.add_argument("--mock-cvat", action=argparse.BooleanOptionalAction, default=True,
+                        help="Simulate CVAT API Live Ingestion Mode (--no-mock-cvat to skip)")
     parser.add_argument("--output-report", type=str, default="output/qc_audit_report.html", help="Path to save HTML report")
 
     args = parser.parse_args()

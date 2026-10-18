@@ -58,3 +58,8 @@ MODEL_ASSIST_CONF = 0.70        # High confidence required for AI to flag missin
 # Google Gemini API Settings for AI QC Auditor Agent
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-1.5-flash")
+
+# CVAT REST API Settings (src/cvat_uploader.py)
+CVAT_SERVER_URL = os.getenv("CVAT_SERVER_URL", "https://app.cvat.ai")
+CVAT_USERNAME = os.getenv("CVAT_USERNAME", "")
+CVAT_PASSWORD = os.getenv("CVAT_PASSWORD", "")
