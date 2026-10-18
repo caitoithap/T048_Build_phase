@@ -122,7 +122,12 @@ Mỗi bước trong `PLAN.md` sau khi làm xong được ghi lại ở đây: đ
 - Người dùng đăng nhập `gh` (device code, tài khoản `caitoithap`, scope `repo`); `gh auth setup-git` để git dùng token.
 - Push nhánh `deploy/vercel` (gồm cả 2 commit bước 1–2 chưa từng push trước đó), mở **PR #1**: https://github.com/caitoithap/T048_Build_phase/pull/1. Repo đã nối sẵn với project Vercel (`vercel git connect` báo already connected), nên check "Vercel" của PR pass và Vercel gắn link preview.
 
-## Bước 10–16 – Preview, production, bảo vệ, hiệu năng, dữ liệu thật, smoke test, vận hành ⛔ chưa làm
+## Hàng đợi Q8 – Production ✅ (18/10/2026)
+- Người dùng đồng ý merge. PR #1 merge vào `main` bằng merge commit `0e5add0`. Vercel tự build production từ `main` (deployment `m22-dashboard-i9r3uguwr-caitoithaps-projects.vercel.app`, build 13 s), alias **https://m22-dashboard.vercel.app**.
+- `deploy/smoke_vercel.sh https://m22-dashboard.vercel.app` → **SMOKE OK 26/26**, không cần token (production công khai theo lựa chọn a). Playwright 11 trang × sáng/tối × thật/giả + 400px: không lỗi.
+- Thời gian: cold start (request API đầu của deployment mới, đo trên preview PR #1) **3,2 s**; khi ấm **0,2–0,8 s**.
+
+## Bước 13, 14, 16 – còn lại
 - Tất cả cần tài khoản Vercel đã đăng nhập (và quyền repo GitHub cho bước 11). Bước 14 (commit CSV thật) cần dữ liệu thật từ pipeline.
 
 ## Bước 17 – Tài liệu 🟡 (18/10/2026)
