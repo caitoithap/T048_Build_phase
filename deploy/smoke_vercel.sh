@@ -2,14 +2,17 @@
 # Smoke test bản triển khai Vercel (Bước 15 của PLAN.md). Trả mã ≠ 0 nếu có request nào không đạt.
 #   deploy/smoke_vercel.sh https://m22-dashboard.vercel.app
 #   deploy/smoke_vercel.sh https://<preview-url> t048:<mat-khau>     # khi bật Basic Auth
-# Preview bị Vercel Authentication khoá: thêm header bypass bằng biến môi trường
-#   VERCEL_BYPASS=<Protection Bypass for Automation secret> deploy/smoke_vercel.sh https://<preview-url>
+# Preview bị Vercel Authentication khoá: chạy qua vercel env run để có VERCEL_OIDC_TOKEN (token ngắn hạn, không in ra)
+#   vercel env run -- deploy/smoke_vercel.sh https://<preview-url>
+# hoặc dùng secret "Protection Bypass for Automation":
+#   VERCEL_BYPASS=<secret> deploy/smoke_vercel.sh https://<preview-url>
 set -uo pipefail
 BASE=${1:?dùng: smoke_vercel.sh BASE [USER:PASS]}
 BASE=${BASE%/}
 ARGS=(-sS --max-time 90)
 [ -n "${2:-}" ] && ARGS+=(-u "$2")
 [ -n "${VERCEL_BYPASS:-}" ] && ARGS+=(-H "x-vercel-protection-bypass: $VERCEL_BYPASS")
+[ -n "${VERCEL_OIDC_TOKEN:-}" ] && ARGS+=(-H "x-vercel-trusted-oidc-idp-token: $VERCEL_OIDC_TOKEN")
 FAIL=0
 
 check() {  # check <tên> <đường dẫn> [content-type mong đợi]

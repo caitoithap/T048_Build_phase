@@ -115,7 +115,12 @@ Mỗi bước trong `PLAN.md` sau khi làm xong được ghi lại ở đây: đ
 - Checklist Bước 10.4: build không torch ✅; dung lượng ~143 MB < 225 MB ✅; `/api/meta` 200 (import đúng `dashboard/api`, không trùng tên) ✅; `/api/pages/tong-quan?demo=true` 200 (FastAPI nhận đúng path gốc sau rewrite) ✅; `/api/issues/ISS-00001/crop.jpg` trả `image/jpeg` ✅; F5 `/top-loi` 200 ✅; không có lỗi 503 đáp án ✅.
 - Tạo `deploy/smoke_vercel.sh BASE [USER:PASS]` (hỗ trợ `VERCEL_BYPASS` cho preview bị khoá): 26 kiểm tra (index, SPA fallback, meta, data-status, sample.zip, 9 trang × sáng/tối, chi tiết issue, ảnh crop `image/jpeg`, `/docs` không phải Swagger). Trên URL production: **SMOKE OK**, mọi request 0,2–0,7 s (đã ấm). Thử URL sai → mã thoát 1.
 - Playwright trên URL production: 11 trang × sáng/tối × thật/giả, không lỗi console hay request; không tràn ngang ở 400px; Chi tiết issue hiện ảnh crop có box.
-- Chưa đo được cold start (chưa có cách ép instance mới); sẽ đo sau lần deploy kế tiếp.
+- Preview của PR #1 (build từ git, `https://m22-dashboard-git-deploy-vercel-caitoithaps-projects.vercel.app`): build log cài từ `api/requirements.txt`, Python 3.12, không torch, 13 s. Preview bị Vercel Authentication khoá (302), nên smoke script thêm header `x-vercel-trusted-oidc-idp-token` khi có `VERCEL_OIDC_TOKEN`; chạy bằng `vercel env run -- deploy/smoke_vercel.sh <url>` (token ngắn hạn, không in ra, không tắt bảo vệ). **SMOKE OK 26/26.**
+- **Cold start** (request API đầu tiên của deployment mới): **3,2 s**; khi đã ấm 0,3–0,7 s. Đạt mục tiêu < 10 s / < 1 s.
+
+## Hàng đợi Q7 – Commit và mở PR ✅ (18/10/2026)
+- Người dùng đăng nhập `gh` (device code, tài khoản `caitoithap`, scope `repo`); `gh auth setup-git` để git dùng token.
+- Push nhánh `deploy/vercel` (gồm cả 2 commit bước 1–2 chưa từng push trước đó), mở **PR #1**: https://github.com/caitoithap/T048_Build_phase/pull/1. Repo đã nối sẵn với project Vercel (`vercel git connect` báo already connected), nên check "Vercel" của PR pass và Vercel gắn link preview.
 
 ## Bước 10–16 – Preview, production, bảo vệ, hiệu năng, dữ liệu thật, smoke test, vận hành ⛔ chưa làm
 - Tất cả cần tài khoản Vercel đã đăng nhập (và quyền repo GitHub cho bước 11). Bước 14 (commit CSV thật) cần dữ liệu thật từ pipeline.

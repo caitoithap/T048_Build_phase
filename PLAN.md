@@ -58,10 +58,10 @@ Frontend gọi API bằng đường dẫn tương đối `/api/...` (`web/src/li
 | **4** | A. Hoàn thiện code | Đồng bộ frontend với các trang mới | ✅ Hoàn thành (typecheck sạch; bấm thử 44 lượt bằng Playwright không lỗi) |
 | **5** | A. Hoàn thiện code | Sửa lỗi tồn đọng | ✅ Hoàn thành (5.1–5.4) |
 | **6** | A. Hoàn thiện code | Tách `dashboard/requirements.txt` | ✅ Hoàn thành |
-| **7** | B. Chuẩn bị | Cài Node.js, Vercel CLI, tạo tài khoản và liên kết GitHub | 🟡 Vercel đã đăng nhập (`caitoithap`); còn `gh auth login` |
+| **7** | B. Chuẩn bị | Cài Node.js, Vercel CLI, tạo tài khoản và liên kết GitHub | ✅ Node 22, Vercel CLI + `gh` đã đăng nhập (`caitoithap`) |
 | **8** | C. Cấu hình | Entry Python `api/index.py` + `api/requirements.txt` + `.python-version` | ✅ Hoàn thành (kiểm tra trên Python 3.12: 45/45 test) |
 | **9** | C. Cấu hình | `vercel.json` (build, rewrites, function) + `.vercelignore` | ✅ `vercel build` OK, gói 143 MB (đã sửa `includeFiles`, xem PROGRESS Q5) |
-| **10** | D. Thử | Chạy `vercel dev` ở máy, rồi tạo preview deployment | 🟡 Deploy OK, smoke 26/26; `vercel dev` lỗi của CLI (maxDuration) |
+| **10** | D. Thử | Chạy `vercel dev` ở máy, rồi tạo preview deployment | ✅ Preview PR #1 smoke 26/26, cold start 3,2 s; `vercel dev` lỗi của CLI (maxDuration) |
 | **11** | E. Production | Tạo project trên Vercel, deploy production, chọn region và domain | ⏳ Chưa bắt đầu |
 | **12** | F. Bảo vệ | Giới hạn người xem (Basic Auth bằng Routing Middleware hoặc Password Protection) | ⏳ Chưa bắt đầu |
 | **13** | G. Hiệu năng | Giảm cold start, cache tĩnh, giữ function luôn "ấm" | ⏳ Chưa bắt đầu |
@@ -135,10 +135,10 @@ Nhật ký chi tiết từng bước: xem `PROGRESS.md` và mục nhật ký ở
   ```
   Ghi vào `PROGRESS.md`: kích thước function, phiên bản Python Vercel dùng, và log cài gói có lấy đúng `api/requirements.txt` không (không được có `torch`).
 
-- [ ] **Q6 – Bước 10: `vercel dev` rồi preview.** Chạy đủ checklist ở Bước 10.4. Preview mặc định được Vercel Authentication bảo vệ nên deploy được ngay. **Không chạy `vercel --prod`** cho tới khi người dùng đồng ý (Q8).
+- [x] **Q6 – Bước 10: `vercel dev` rồi preview.** Chạy đủ checklist ở Bước 10.4. Preview mặc định được Vercel Authentication bảo vệ nên deploy được ngay. **Không chạy `vercel --prod`** cho tới khi người dùng đồng ý (Q8).
   Viết script kiểm tra dùng lại được: tạo `deploy/smoke_vercel.sh` nhận `BASE` và tuỳ chọn `USER:PASS`, nội dung lấy từ Bước 15 và thêm kiểm tra ảnh crop: lấy một `issue_id` từ `/api/issues?demo=true`, gọi `/api/issues/<id>/crop.jpg?demo=true`, phải nhận `content-type: image/jpeg`. Script trả mã lỗi ≠ 0 nếu có request nào không phải 200. Với preview đang bị bảo vệ, dùng `vercel curl` hoặc bypass token (Settings → Deployment Protection → Protection Bypass for Automation) cho script.
 
-- [ ] **Q7 – 👤 Commit và mở PR** (cần đồng ý ở Q4.3). Hiện có rất nhiều thay đổi chưa commit. Chia commit theo bước, đúng kiểu message tiếng Việt không dấu như lịch sử repo (`feat: ...`, `test: ...`):
+- [x] **Q7 – 👤 Commit và mở PR** (cần đồng ý ở Q4.3). Hiện có rất nhiều thay đổi chưa commit. Chia commit theo bước, đúng kiểu message tiếng Việt không dấu như lịch sử repo (`feat: ...`, `test: ...`):
   1. `feat: chuyen 8 trang phan tich sang FastAPI (buoc 3)`: `dashboard/api/pages/*`, `tests/test_api_endpoints.py`
   2. `fix: bo sung cau hinh CVAT, python-dotenv, co --no-mock-cvat (buoc 5)`: `config.py`, `cli.py`, `requirements.txt`, `tests/test_cli.py`
   3. `chore: tach requirements dashboard, cau hinh VPS du phong (buoc 6)`: `dashboard/requirements.txt`, `deploy/`, `run_dashboard.sh`
