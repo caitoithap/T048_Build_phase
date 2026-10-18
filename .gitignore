@@ -34,3 +34,6 @@ ENV/
 Thumbs.db
 .vscode/
 .idea/
+
+# Vercel CLI
+.vercel
