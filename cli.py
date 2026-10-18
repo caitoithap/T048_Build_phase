@@ -40,8 +40,13 @@ def main():
         print(f"✅ CVAT Data Ingested: Task '{task_meta['name']}' with {len(cvat_issues)} Reviewer Issues.")
 
     if not ann_path.exists():
-        print(f"❌ Annotation file [{ann_path}] not found.")
-        sys.exit(1)
+        fallback_ann = Path("sample_data_output1/annotations.xml")
+        if fallback_ann.exists():
+            print(f"ℹ️ Annotation file [{ann_path}] not found. Falling back to default [{fallback_ann}]...")
+            ann_path = fallback_ann
+        else:
+            print(f"❌ Annotation file [{ann_path}] not found.")
+            sys.exit(1)
 
     # 1. Rule-Based QC Audit
     print("🧹 [1/4] Running Rule-Based QC Audit Engine...")
