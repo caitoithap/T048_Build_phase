@@ -62,11 +62,11 @@ Frontend gọi API bằng đường dẫn tương đối `/api/...` (`web/src/li
 | **8** | C. Cấu hình | Entry Python `api/index.py` + `api/requirements.txt` + `.python-version` | ✅ Hoàn thành (kiểm tra trên Python 3.12: 45/45 test) |
 | **9** | C. Cấu hình | `vercel.json` (build, rewrites, function) + `.vercelignore` | ✅ `vercel build` OK, gói 143 MB (đã sửa `includeFiles`, xem PROGRESS Q5) |
 | **10** | D. Thử | Chạy `vercel dev` ở máy, rồi tạo preview deployment | ✅ Preview PR #1 smoke 26/26, cold start 3,2 s; `vercel dev` lỗi của CLI (maxDuration) |
-| **11** | E. Production | Tạo project trên Vercel, deploy production, chọn region và domain | ⏳ Chưa bắt đầu |
-| **12** | F. Bảo vệ | Giới hạn người xem (Basic Auth bằng Routing Middleware hoặc Password Protection) | ⏳ Chưa bắt đầu |
+| **11** | E. Production | Tạo project trên Vercel, deploy production, chọn region và domain | ✅ https://m22-dashboard.vercel.app (từ `main`, region sin1) |
+| **12** | F. Bảo vệ | Giới hạn người xem (Basic Auth bằng Routing Middleware hoặc Password Protection) | ✅ Chọn a: công khai (preview vẫn có Vercel Authentication) |
 | **13** | G. Hiệu năng | Giảm cold start, cache tĩnh, giữ function luôn "ấm" | ⏳ Chưa bắt đầu |
 | **14** | H. Dữ liệu | Cắm dữ liệu thật (commit CSV, Vercel tự deploy lại) | ⏳ Chưa bắt đầu |
-| **15** | I. Kiểm thử | Smoke test trên URL production | ⏳ Chưa bắt đầu |
+| **15** | I. Kiểm thử | Smoke test trên URL production | ✅ `deploy/smoke_vercel.sh` 26/26; cold start 3,2 s, ấm < 1 s |
 | **16** | J. Vận hành | Log, rollback, quy trình PR → preview → production | ⏳ Chưa bắt đầu |
 | **17** | K. Tài liệu | Cập nhật README.md, REPORT.md, dashboard/README.md | 🟡 Đã cập nhật một phần; còn URL Vercel + kết quả smoke test |
 
@@ -146,7 +146,7 @@ Nhật ký chi tiết từng bước: xem `PROGRESS.md` và mục nhật ký ở
   5. `docs: cap nhat PLAN, PROGRESS, README, REPORT`
   Push lên nhánh `deploy/vercel`, mở PR vào `main` bằng `gh pr create`. Kiểm tra Vercel đã gắn link Preview vào PR (cần Vercel GitHub App có quyền vào repo; nếu chưa có thì 👤 người dùng cấp quyền ở Bước 11.1).
 
-- [ ] **Q8 – 👤 Production (Bước 11).** Chỉ làm khi preview của PR pass `deploy/smoke_vercel.sh` **và** người dùng đồng ý merge. Merge xong thì chạy smoke test trên URL production, ghi URL và thời gian cold start/khi đã ấm vào `PROGRESS.md` và `REPORT.md`.
+- [x] **Q8 – 👤 Production (Bước 11).** Chỉ làm khi preview của PR pass `deploy/smoke_vercel.sh` **và** người dùng đồng ý merge. Merge xong thì chạy smoke test trên URL production, ghi URL và thời gian cold start/khi đã ấm vào `PROGRESS.md` và `REPORT.md`.
 
 - [x] **Q9 – Bước 12 theo lựa chọn ở Q4.1.** Nếu chọn **b**, làm theo hướng dẫn đã sửa ở Bước 12: `middleware.ts` **không import thư viện ngoài**, vì `installCommand` chỉ chạy `npm ci` trong `dashboard/web`, nên `package.json` ở gốc sẽ không được cài.
 
