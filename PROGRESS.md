@@ -92,6 +92,31 @@ Mỗi bước trong `PLAN.md` sau khi làm xong được ghi lại ở đây: đ
 - `REPORT.md`: dòng chuẩn bị triển khai đổi sang Vercel; 5 bộ test, 59/59 pass.
 - Còn chờ URL production và kết quả smoke test (Q8).
 
+## Hàng đợi Q4 – bổ sung (18/10/2026)
+- Người dùng xác nhận: dữ liệu theo **public** (repo public), nên Bước 14 chỉ commit dữ liệu giả hoặc đã ẩn danh.
+- Vercel CLI đăng nhập: `vercel whoami` → `caitoithap`. GitHub CLI (`gh`) **chưa đăng nhập**, nên chưa push/mở PR được (Q7).
+
+## Hàng đợi Q5 – Link project và `vercel build` ✅ (18/10/2026)
+- `vercel link --yes --project m22-dashboard`: tạo project mới (`prj_P1aCsLEF9riCVETwyL1ndDPVSTC6`). CLI tự thêm `.vercel` và `.env*` vào `.gitignore`; dòng `.env*` nằm sau `!.env.example` nên đã sắp lại (giữ `deploy/.env.example`).
+- `vercel build` ở máy cần `uv` trong PATH: dùng `uv` 0.13.1 trong venv scratchpad.
+- **Lần build đầu lỗi `LAMBDA_SIZE_EXCEEDED` (382,77 MB, giới hạn của builder là 225 MB, không phải 250 MB).** Đọc mã nguồn `@vercel/python` (đi kèm CLI 64.5.0) thì thấy hai nguyên nhân:
+  1. Builder tự quét `**` toàn repo (đã loại sẵn `node_modules`, `.venv`, `.vercel`), rồi mới thêm các file khớp `includeFiles` **sau** bước `excludeFiles` (`Object.assign(files, initialFiles)`). Mẫu `dashboard/**` trong PLAN kéo theo `dashboard/web/node_modules` (224 MB).
+  2. Ở máy, builder nhắm glibc 2.17, nên wheel numpy/pandas/pillow (cần ≥ 2.27/2.28) bị coi là không tương thích và bị force-bundle. Trên build image của Vercel thì builder đọc glibc thật (`VERCEL_BUILD_IMAGE`), nên đây chỉ là lỗi ở máy.
+- Sửa `vercel.json`: `includeFiles` chỉ còn `{sample_data_output1/annotations.xml,sample_data_output1/images.zip}`; `excludeFiles` thêm `_uv/**`, `.env*`, `.pytest_cache/**` và các mục chỉ có ở máy (`src/**`, `tests/**`, `output/**`, `sample_data/**`, `deploy/**`, `*.pt`, `app.py`, `cli.py`, `config.py`, các file `.md` ở gốc), để build ở máy khớp với cloud (trên cloud, `.vercelignore` đã loại lúc upload). Lần build có `.env.local` (chứa `VERCEL_OIDC_TOKEN`) lọt vào gói → đã loại.
+- Kết quả: **build OK, gói function 142,96 MB** (thư viện 136,4 MB + dữ liệu 13,3 MB), mọi gói đều bundle sẵn, không phải cài lúc chạy. Có `images.zip`, `annotations.xml`; không có torch, `node_modules`, `views/`. `.vercel/output/static/index.html` có. Runtime `python3.12`.
+- Builder đọc phiên bản Python từ `api/.python-version` (thư mục chứa `requirements.txt`), không phải file ở gốc; build tự sinh `api/.python-version` (3.12), `api/pyproject.toml`, `api/uv.lock`. Commit `api/.python-version` cho rõ ràng; `pyproject.toml` + `uv.lock` là sản phẩm sinh ra nên đưa vào `.gitignore`. Thư mục `_uv/` (uv bundle) cũng đưa vào `.gitignore`.
+- Thêm test vào `tests/test_vercel_config.py`: `includeFiles` không chứa `dashboard/**`, `excludeFiles` có `.env*`. `pytest tests/` → **59/59 pass**.
+- Q3.2 (bỏ thư mục test của pandas/numpy) **không cần** vì gói còn 143 MB.
+
+## Hàng đợi Q6 – `vercel dev` và preview 🟡 (18/10/2026)
+- `vercel dev`: trang tĩnh trả 200, nhưng mọi `/api/*` trả 500 do lỗi của chính công cụ: `DEV_BUILDER_RESULT_HAS_MAXDURATION: The result of "builder.build()" must not contain maxDuration` (CLI ghi "likely a bug in the Builder"). `vercel build` và bản cloud chạy được với cùng cấu hình, nên không sửa `vercel.json` để chiều lỗi này.
+- `vercel deploy --yes` (không có `--prod`). ⚠️ Vì là **lần deploy đầu của project, Vercel tự gán nó làm production**: **https://m22-dashboard.vercel.app** (deployment `m22-dashboard-fjuuwbkyv-caitoithaps-projects.vercel.app`). Chỉ chứa dữ liệu giả, người dùng chọn công khai. Các lần deploy sau mặc định là preview.
+- Build log trên cloud: Python 3.12 từ `api/.python-version`, cài từ uv.lock theo bộ gói đã ghim, không có torch, build 13 s, không có cảnh báo dung lượng.
+- Checklist Bước 10.4: build không torch ✅; dung lượng ~143 MB < 225 MB ✅; `/api/meta` 200 (import đúng `dashboard/api`, không trùng tên) ✅; `/api/pages/tong-quan?demo=true` 200 (FastAPI nhận đúng path gốc sau rewrite) ✅; `/api/issues/ISS-00001/crop.jpg` trả `image/jpeg` ✅; F5 `/top-loi` 200 ✅; không có lỗi 503 đáp án ✅.
+- Tạo `deploy/smoke_vercel.sh BASE [USER:PASS]` (hỗ trợ `VERCEL_BYPASS` cho preview bị khoá): 26 kiểm tra (index, SPA fallback, meta, data-status, sample.zip, 9 trang × sáng/tối, chi tiết issue, ảnh crop `image/jpeg`, `/docs` không phải Swagger). Trên URL production: **SMOKE OK**, mọi request 0,2–0,7 s (đã ấm). Thử URL sai → mã thoát 1.
+- Playwright trên URL production: 11 trang × sáng/tối × thật/giả, không lỗi console hay request; không tràn ngang ở 400px; Chi tiết issue hiện ảnh crop có box.
+- Chưa đo được cold start (chưa có cách ép instance mới); sẽ đo sau lần deploy kế tiếp.
+
 ## Bước 10–16 – Preview, production, bảo vệ, hiệu năng, dữ liệu thật, smoke test, vận hành ⛔ chưa làm
 - Tất cả cần tài khoản Vercel đã đăng nhập (và quyền repo GitHub cho bước 11). Bước 14 (commit CSV thật) cần dữ liệu thật từ pipeline.
 
@@ -110,4 +135,5 @@ Mỗi bước trong `PLAN.md` sau khi làm xong được ghi lại ở đây: đ
 - Phiên bản đã test trên 3.12: fastapi 0.144.0, pandas 3.0.6, numpy 2.5.4, altair 6.3.0, Pillow 13.0.0. Nên ghim trong `api/requirements.txt` (**Q3**).
 - Dung lượng: site-packages ~200 MB, sát giới hạn 250 MB. Thư mục test của pandas/numpy ~63 MB, là phương án dự phòng nếu vượt (**Q3.2**).
 - Bước 12 cách b: mẫu `middleware.ts` cũ cần `@vercel/functions` nhưng sẽ không được cài (installCommand chỉ chạy trong `dashboard/web`). Đã thay bằng mẫu không phụ thuộc thư viện.
-- Việc cần người dùng (Q4): `! ~/.local/node/bin/vercel login`; chọn cách bảo vệ truy cập; cho biết repo public hay private; cho phép push/PR.
+- Việc cần người dùng (Q4): `! PATH="$HOME/.local/node/bin:$PATH" vercel login` (gọi thẳng `~/.local/node/bin/vercel` sẽ lỗi `env: node: No such file`, vì `node` chưa có trong PATH của phiên); chọn cách bảo vệ truy cập; cho biết repo public hay private; cho phép push/PR.
+- **Q4 (một phần) – Đã đăng nhập Vercel (18/10/2026):** `vercel whoami` → `caitoithap` (trùng chủ repo GitHub). Agent làm tiếp được Q5–Q6 (link project, `vercel build`, `vercel dev`, preview). Vẫn **chờ người dùng trả lời** Q4.1 (bảo vệ truy cập), Q4.2 (repo public/private), Q4.3 (cho phép push/PR). Chưa có trả lời thì không làm Q7–Q9 và không chạy `vercel --prod`.

@@ -58,10 +58,10 @@ Frontend gọi API bằng đường dẫn tương đối `/api/...` (`web/src/li
 | **4** | A. Hoàn thiện code | Đồng bộ frontend với các trang mới | ✅ Hoàn thành (typecheck sạch; bấm thử 44 lượt bằng Playwright không lỗi) |
 | **5** | A. Hoàn thiện code | Sửa lỗi tồn đọng | ✅ Hoàn thành (5.1–5.4) |
 | **6** | A. Hoàn thiện code | Tách `dashboard/requirements.txt` | ✅ Hoàn thành |
-| **7** | B. Chuẩn bị | Cài Node.js, Vercel CLI, tạo tài khoản và liên kết GitHub | 🟡 Node 22 + Vercel CLI 64.5 đã cài, `npm run build` OK; còn `vercel login` |
+| **7** | B. Chuẩn bị | Cài Node.js, Vercel CLI, tạo tài khoản và liên kết GitHub | 🟡 Vercel đã đăng nhập (`caitoithap`); còn `gh auth login` |
 | **8** | C. Cấu hình | Entry Python `api/index.py` + `api/requirements.txt` + `.python-version` | ✅ Hoàn thành (kiểm tra trên Python 3.12: 45/45 test) |
-| **9** | C. Cấu hình | `vercel.json` (build, rewrites, function) + `.vercelignore` | 🟡 `.vercelignore` đã sửa (Q1) + có test (Q2); `vercel build` chờ đăng nhập |
-| **10** | D. Thử | Chạy `vercel dev` ở máy, rồi tạo preview deployment | ⏳ Chưa bắt đầu |
+| **9** | C. Cấu hình | `vercel.json` (build, rewrites, function) + `.vercelignore` | ✅ `vercel build` OK, gói 143 MB (đã sửa `includeFiles`, xem PROGRESS Q5) |
+| **10** | D. Thử | Chạy `vercel dev` ở máy, rồi tạo preview deployment | 🟡 Deploy OK, smoke 26/26; `vercel dev` lỗi của CLI (maxDuration) |
 | **11** | E. Production | Tạo project trên Vercel, deploy production, chọn region và domain | ⏳ Chưa bắt đầu |
 | **12** | F. Bảo vệ | Giới hạn người xem (Basic Auth bằng Routing Middleware hoặc Password Protection) | ⏳ Chưa bắt đầu |
 | **13** | G. Hiệu năng | Giảm cold start, cache tĩnh, giữ function luôn "ấm" | ⏳ Chưa bắt đầu |
@@ -103,7 +103,7 @@ Nhật ký chi tiết từng bước: xem `PROGRESS.md` và mục nhật ký ở
   4. `.vercelignore`: dùng `pathspec` (`pytest.importorskip("pathspec")`, kiểu `gitwildmatch`), kiểm tra hai danh sách `keep`/`drop` như ở Q1. Cài `pathspec` vào `.venv` để chạy được: `.venv/bin/pip install pathspec`.
   5. Tiêu chí: `.venv/bin/pytest tests/ -v` pass hết. Test 4 phải **fail** với `.vercelignore` cũ (thử nhanh bằng cách tạm thêm dòng `src/`).
 
-- [ ] **Q3 – Ghim phiên bản và chuẩn bị phương án giảm dung lượng.**
+- [x] **Q3 – Ghim phiên bản và chuẩn bị phương án giảm dung lượng.**
   1. Ghim `api/requirements.txt` theo đúng bộ đã test pass trên Python 3.12, để build trên Vercel không tự lên bản mới làm vỡ code hoặc tăng dung lượng:
      ```
      fastapi==0.144.0
@@ -115,16 +115,16 @@ Nhật ký chi tiết từng bước: xem `PROGRESS.md` và mục nhật ký ở
      Chạy lại test trên venv 3.12 (cách làm ở `PROGRESS.md`, Bước 8) sau khi ghim.
   2. **Chỉ làm nếu** ở Q6 thấy function > 230 MB hoặc Vercel báo vượt 250 MB: thêm vào `excludeFiles` của `vercel.json` các mẫu `**/pandas/tests/**`, `**/numpy/**/tests/**` (tiết kiệm ~63 MB). Sau đó xác minh lại kích thước function **và** gọi đủ 9 trang, vì đây là giả định chưa kiểm chứng rằng `excludeFiles` áp dụng cả cho gói đã cài.
 
-- [ ] **Q4 – 👤 Người dùng đăng nhập Vercel và trả lời 3 câu hỏi.** Agent nhắc người dùng gõ trong Claude Code:
+- [x] **Q4 – 👤 Người dùng đăng nhập Vercel và trả lời 3 câu hỏi.** Agent nhắc người dùng gõ trong Claude Code:
   ```
-  ! ~/.local/node/bin/vercel login
+  ! PATH="$HOME/.local/node/bin:$PATH" vercel login
   ```
   Sau đó hỏi người dùng (một lần, gộp chung):
   1. Bảo vệ truy cập ở Bước 12: **a** công khai / **b** Basic Auth (khuyến nghị, miễn phí) / **c** Password Protection (Pro, trả phí)? Nếu chọn b thì cần tên đăng nhập và mật khẩu, đặt qua `vercel env add`, **không ghi vào repo**.
   2. Repo `caitoithap/T048_Build_phase` đang public hay private? (quyết định có được commit CSV thật ở Bước 14 không)
   3. Có cho phép agent `git push` lên nhánh mới và mở PR không? (Q7)
 
-- [ ] **Q5 – Liên kết project và `vercel build` ở máy** (sau Q1–Q4):
+- [x] **Q5 – Liên kết project và `vercel build` ở máy** (sau Q1–Q4):
   ```bash
   export PATH="$HOME/.local/node/bin:$PATH"
   vercel link --yes --project m22-dashboard
@@ -148,7 +148,7 @@ Nhật ký chi tiết từng bước: xem `PROGRESS.md` và mục nhật ký ở
 
 - [ ] **Q8 – 👤 Production (Bước 11).** Chỉ làm khi preview của PR pass `deploy/smoke_vercel.sh` **và** người dùng đồng ý merge. Merge xong thì chạy smoke test trên URL production, ghi URL và thời gian cold start/khi đã ấm vào `PROGRESS.md` và `REPORT.md`.
 
-- [ ] **Q9 – Bước 12 theo lựa chọn ở Q4.1.** Nếu chọn **b**, làm theo hướng dẫn đã sửa ở Bước 12: `middleware.ts` **không import thư viện ngoài**, vì `installCommand` chỉ chạy `npm ci` trong `dashboard/web`, nên `package.json` ở gốc sẽ không được cài.
+- [x] **Q9 – Bước 12 theo lựa chọn ở Q4.1.** Nếu chọn **b**, làm theo hướng dẫn đã sửa ở Bước 12: `middleware.ts` **không import thư viện ngoài**, vì `installCommand` chỉ chạy `npm ci` trong `dashboard/web`, nên `package.json` ở gốc sẽ không được cài.
 
 - [x] **Q10 – Tài liệu (Bước 17).** Viết lại mục "Triển khai" trong `README.md` và `dashboard/README.md` theo Vercel. Phương án VPS chỉ còn một dòng trỏ tới phụ lục của `PLAN.md`. Ghi rõ: dữ liệu thật trên Vercel **chỉ nhận `.csv`** và nộp bằng cách commit vào `dashboard/data_real/`.
 
@@ -256,8 +256,8 @@ Vercel coi mỗi file `.py` trong thư mục `api/` **ở gốc repo** là một
      "functions": {
        "api/index.py": {
          "maxDuration": 60,
-         "includeFiles": "{dashboard/**,sample_data_output1/annotations.xml,sample_data_output1/images.zip}",
-         "excludeFiles": "{dashboard/web/**,dashboard/views/**,**/__pycache__/**}"
+         "includeFiles": "{sample_data_output1/annotations.xml,sample_data_output1/images.zip}",  // KHÔNG ghi dashboard/** (xem Q5 trong PROGRESS.md)
+         "excludeFiles": "{dashboard/web/**,dashboard/views/**,**/__pycache__/**,_uv/**,.env*,.pytest_cache/**,src/**,tests/**,output/**,sample_data/**,deploy/**,*.pt,*.onnx,app.py,cli.py,config.py,run_dashboard.sh,README.md,REPORT.md,PLAN.md,PROGRESS.md,M22_*.md}"
        }
      },
      "rewrites": [

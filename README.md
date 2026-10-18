@@ -113,7 +113,7 @@ The dashboard is deployed as **one Vercel project**: the React build is served f
 `/api/*` is rewritten to a single Python Function (`api/index.py`) that wraps the FastAPI app in
 `dashboard/api/main.py`. Same domain, so no CORS. Every push to `main` deploys production; every PR gets a preview link.
 
-- Production URL: _(added after the first production deploy)_
+- Production URL: **https://m22-dashboard.vercel.app** (mock data; smoke test: `deploy/smoke_vercel.sh https://m22-dashboard.vercel.app`)
 - Config files: `vercel.json` (build, rewrites, function `includeFiles`), `.vercelignore`,
   `api/requirements.txt` (pinned, without torch/uvicorn/pyarrow so the function stays under 250 MB), `.python-version` (3.12).
 - Local check: `vercel build` then `vercel dev` (needs `vercel login`); `.venv/bin/pytest tests/test_vercel_config.py` guards the config.
