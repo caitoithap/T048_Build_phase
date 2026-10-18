@@ -31,6 +31,9 @@ def test_vercel_json():
     function = config["functions"]["api/index.py"]
     assert "sample_data_output1/annotations.xml" in function["includeFiles"]
     assert "sample_data_output1/images.zip" in function["includeFiles"]
+    # Builder Python thêm includeFiles SAU bước excludeFiles: "dashboard/**" sẽ kéo cả dashboard/web/node_modules.
+    assert "dashboard/**" not in function["includeFiles"]
+    assert ".env*" in function["excludeFiles"]
     assert config["rewrites"][0]["source"] == "/api/(.*)"
     assert config["outputDirectory"] == "dashboard/web/dist"
 
