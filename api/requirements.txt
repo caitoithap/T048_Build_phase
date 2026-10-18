@@ -1,0 +1,7 @@
+# Gói cho Vercel Function. Không có uvicorn (Vercel tự chạy ASGI), không có pyarrow (154 MB, vượt giới hạn).
+# Ghim đúng bộ đã test pass trên Python 3.12, để build trên Vercel không tự lên bản mới.
+fastapi==0.144.0
+pandas==3.0.6
+numpy==2.5.4
+altair==6.3.0
+Pillow==13.0.0

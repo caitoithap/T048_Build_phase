@@ -1,0 +1,19 @@
+[Unit]
+Description=M22 Issue Analytics API (FastAPI)
+After=network.target
+
+[Service]
+User=m22
+Group=m22
+# Code import theo kiểu "import settings", "from api ...", nên bắt buộc chạy từ thư mục dashboard/
+WorkingDirectory=/opt/m22/app/dashboard
+Environment=M22_REAL_DIR=/opt/m22/data_real
+# VPS 1 GB thì đổi --workers 1: mỗi worker có lru_cache riêng nên RAM dùng gấp đôi.
+ExecStart=/opt/m22/venv/bin/uvicorn api.main:app --host 127.0.0.1 --port 8000 --workers 2 --proxy-headers
+# Warm-up: sinh sẵn dữ liệu giả trước khi người dùng truy cập.
+ExecStartPost=/bin/sh -c 'sleep 3; curl -fsS -o /dev/null "http://127.0.0.1:8000/api/meta?demo=true" || true'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

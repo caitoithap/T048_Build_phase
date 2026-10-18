@@ -18,13 +18,14 @@
 - 💾 **CVAT XML & COCO Export**: Generates standard `CVAT XML 1.1` and `COCO JSON` annotation files.
 - 🌐 **CVAT REST API Integration**: Directly uploads pre-annotations to CVAT Server tasks.
 - 📊 **Dual Interface**: Includes both a **Streamlit Web Dashboard** and a **CLI tool** for batch automation.
+- 📈 **M22 Issue Analytics Dashboard**: FastAPI + React dashboard (`dashboard/`) with 11 analytics and lookup pages.
 
 ---
 
 ## 📁 Directory Structure
 
 ```text
-D:\AITC\yolo-cvat-prelabel-pipeline\
+T048_Build_phase/
 ├── requirements.txt         # CPU-optimized Python dependencies
 ├── config.py                # Pipeline configurations & CVAT API settings
 ├── src/
@@ -36,6 +37,10 @@ D:\AITC\yolo-cvat-prelabel-pipeline\
 ├── sample_data/
 │   └── create_sample.py     # Synthetic test frame generator
 ├── output/                  # Exported XML and JSON files
+├── dashboard/               # M22 Issue Analytics Dashboard (FastAPI api/ + React web/)
+├── api/                     # Vercel Python Function entry (wraps dashboard/api)
+├── deploy/                  # VPS fallback: systemd unit, Nginx config, deploy script, .env example
+├── tests/                   # pytest suite
 ├── app.py                   # Streamlit Web Dashboard UI
 ├── cli.py                   # Command Line Interface tool
 ├── README.md                # Project user manual
@@ -50,7 +55,7 @@ D:\AITC\yolo-cvat-prelabel-pipeline\
 
 ```bash
 # Navigate to project directory
-cd D:\AITC\yolo-cvat-prelabel-pipeline
+cd T048_Build_phase
 
 # Install CPU-optimized requirements
 pip install -r requirements.txt
@@ -81,6 +86,48 @@ python cli.py --source sample_data --upload-task-id 1
 streamlit run app.py
 ```
 Open your browser at `http://localhost:8501` to view the visual UI, adjust sliders, inspect Bbox overlays, and download XML files.
+
+### 5. Launch the M22 Issue Analytics Dashboard (FastAPI + React)
+
+The M22 dashboard lives in `dashboard/`: a FastAPI backend (`dashboard/api/`) serves every page as
+server-driven blocks (KPIs, Vega-Lite charts, tables), and a React + Vite frontend (`dashboard/web/`) renders them.
+All 11 pages are ported. Without real tables in `dashboard/data_real/` it runs on mock data generated from
+`sample_data_output1/`.
+
+```bash
+./run_dashboard.sh            # API on :8000, UI on http://localhost:5173 (needs Node.js for the UI)
+```
+
+Or run the two parts separately:
+
+```bash
+cd dashboard && uvicorn api.main:app --reload --port 8000
+cd dashboard/web && npm install && npm run dev
+```
+
+Details (page porting, plugging in real data): see `dashboard/README.md`.
+
+### 6. Deploy to Vercel
+
+The dashboard is deployed as **one Vercel project**: the React build is served from Vercel's CDN, and
+`/api/*` is rewritten to a single Python Function (`api/index.py`) that wraps the FastAPI app in
+`dashboard/api/main.py`. Same domain, so no CORS. Every push to `main` deploys production; every PR gets a preview link.
+
+- Production URL: **https://m22-dashboard.vercel.app** (mock data; smoke test: `deploy/smoke_vercel.sh https://m22-dashboard.vercel.app`)
+- Config files: `vercel.json` (build, rewrites, function `includeFiles`), `.vercelignore`,
+  `api/requirements.txt` (pinned, without torch/uvicorn/pyarrow so the function stays under 250 MB), `.python-version` (3.12).
+- Local check: `vercel build` then `vercel dev` (needs `vercel login`); `.venv/bin/pytest tests/test_vercel_config.py` guards the config.
+- **Real data:** export tables as **`.csv` only** (no pyarrow on Vercel, so `.parquet` is not read) into
+  `dashboard/data_real/<table>.csv`, commit through a PR, merge; Vercel redeploys. The repo is public, so only
+  commit anonymised data until it is made private.
+
+Step-by-step commands: `PLAN.md` steps 7–16. A VPS fallback (Nginx + systemd, files in `deploy/`) is described in the appendix of `PLAN.md`.
+
+### 7. Run the Test Suite
+
+```bash
+.venv/bin/pytest tests/ -v    # QC rules, data layer, all API pages (real + mock data), CLI, Vercel config
+```
 
 ---
 

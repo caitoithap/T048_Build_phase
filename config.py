@@ -44,6 +44,13 @@ MIN_BBOX_SIZE_PX = 15.0       # Minimum allowed width or height for valid Bbox
 MAX_ASPECT_RATIO = 6.5        # Max ratio between W/H or H/W
 DUPLICATE_IOU_THRESH = 0.85   # IoU threshold above which boxes are flagged as duplicates
 
+# Defaults for Detector & Pre-labeling pipeline
+DEFAULT_MODEL = "yolov8n.pt"
+DEFAULT_CONF_THRESHOLD = 0.35
+DEFAULT_MIN_BOX_SIZE = MIN_BBOX_SIZE_PX
+DEFAULT_MAX_BOX_ASPECT_RATIO = MAX_ASPECT_RATIO
+TARGET_CLASSES = ["car", "bus", "truck", "person", "bicycle", "motorcycle", "traffic light"]
+
 # Model-assisted Audit Thresholds
 AUDIT_MODEL_NAME = "yolov8n.pt"  # Ultra-lightweight CPU ONNX model
 MODEL_ASSIST_CONF = 0.70        # High confidence required for AI to flag missing human box
@@ -51,3 +58,8 @@ MODEL_ASSIST_CONF = 0.70        # High confidence required for AI to flag missin
 # Google Gemini API Settings for AI QC Auditor Agent
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-1.5-flash")
+
+# CVAT REST API Settings (src/cvat_uploader.py)
+CVAT_SERVER_URL = os.getenv("CVAT_SERVER_URL", "https://app.cvat.ai")
+CVAT_USERNAME = os.getenv("CVAT_USERNAME", "")
+CVAT_PASSWORD = os.getenv("CVAT_PASSWORD", "")

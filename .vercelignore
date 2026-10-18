@@ -1,0 +1,20 @@
+# Cú pháp giống .gitignore: mẫu KHÔNG có "/" ở đầu thì khớp ở mọi cấp thư mục
+# (ví dụ "src/" sẽ xoá cả dashboard/web/src). Mục chỉ ở gốc repo phải viết "/" ở đầu.
+.venv/
+**/__pycache__/
+.pytest_cache/
+**/node_modules/
+/dashboard/web/dist/
+/output/
+/sample_data/
+/tests/
+/src/
+/app.py
+/cli.py
+/config.py
+*.pt
+*.onnx
+.env
+.env.*
+/deploy/
+/run_dashboard.sh

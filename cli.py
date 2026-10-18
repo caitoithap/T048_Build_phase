@@ -18,7 +18,8 @@ def main():
     parser.add_argument("--student", type=str, default="Nguyễn Trọng Hùng", help="Student / Annotator Name")
     parser.add_argument("--task-id", type=str, default="108361", help="CVAT Task ID for live ingestion")
     parser.add_argument("--cvat-url", type=str, default="https://app.cvat.ai", help="CVAT Server URL")
-    parser.add_argument("--mock-cvat", action="store_true", default=True, help="Simulate CVAT API Live Ingestion Mode")
+    parser.add_argument("--mock-cvat", action=argparse.BooleanOptionalAction, default=True,
+                        help="Simulate CVAT API Live Ingestion Mode (--no-mock-cvat to skip)")
     parser.add_argument("--output-report", type=str, default="output/qc_audit_report.html", help="Path to save HTML report")
 
     args = parser.parse_args()
@@ -40,8 +41,13 @@ def main():
         print(f"✅ CVAT Data Ingested: Task '{task_meta['name']}' with {len(cvat_issues)} Reviewer Issues.")
 
     if not ann_path.exists():
-        print(f"❌ Annotation file [{ann_path}] not found.")
-        sys.exit(1)
+        fallback_ann = Path("sample_data_output1/annotations.xml")
+        if fallback_ann.exists():
+            print(f"ℹ️ Annotation file [{ann_path}] not found. Falling back to default [{fallback_ann}]...")
+            ann_path = fallback_ann
+        else:
+            print(f"❌ Annotation file [{ann_path}] not found.")
+            sys.exit(1)
 
     # 1. Rule-Based QC Audit
     print("🧹 [1/4] Running Rule-Based QC Audit Engine...")

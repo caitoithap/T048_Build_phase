@@ -16,7 +16,7 @@ streamlit run dashboard/app.py --server.address localhost
 Cần `sample_data_output1/annotations.xml` (để sinh số giả) và `images.zip` (để hiện ảnh).
 Đã kiểm tra với Python 3.13, Streamlit 1.55, Altair 6.0.
 
-## Giao diện mới: FastAPI + React (đang chuyển)
+## Giao diện mới: FastAPI + React
 
 Streamlit không dùng cho bản deploy chính thức, nên dashboard đang chuyển sang hai phần:
 
@@ -39,8 +39,14 @@ npm run dev          # mở http://localhost:5173
 Vite chuyển mọi request `/api` sang `http://127.0.0.1:8000`. API chạy cổng khác thì đặt biến môi
 trường `M22_API_URL` trước `npm run dev`, ví dụ `M22_API_URL=http://127.0.0.1:8010`.
 
-Đã chuyển: Tổng quan, Chi tiết issue, Nguồn dữ liệu. Các trang khác hiện "sắp có" và vẫn xem được ở
-bản Streamlit; hai bản dùng chung `data_layer/` và `catalog.py` nên chạy song song được.
+Hoặc chạy cả hai bằng một lệnh từ thư mục gốc: `./run_dashboard.sh`.
+
+Đã chuyển cả 11 trang. Chín trang phân tích nằm trong `BUILDERS` (`api/pages/__init__.py`); Chi tiết issue
+và Nguồn dữ liệu có route riêng. Trang "Agent đề xuất vs người áp dụng" ở bản API chưa có khung xem ảnh
+trước/sau của một bản vá (bản Streamlit có); thay vào đó là bảng bản vá, ảnh xem ở Chi tiết issue.
+Bản Streamlit vẫn chạy song song được vì hai bản dùng chung `data_layer/` và `catalog.py`.
+
+Kiểm thử: `.venv/bin/pytest tests/ -v` từ thư mục gốc (gọi mọi trang API với cả dữ liệu thật lẫn giả).
 
 Chuyển thêm một trang phân tích:
 
@@ -57,8 +63,28 @@ trong `data_layer/store.py` và `ui/theme.py`.
 
 Giao diện: token màu và chữ ở `web/src/index.css`; màu xám và phông của biểu đồ ở `ui/theme.py` phải khớp
 với token đó. Font Be Vietnam Pro (@fontsource) và icon lucide được đóng gói cùng bản build, không tải từ
-ngoài, nên VPS không cần ra internet. Dấu bốn góc khung (lớp `.bracketed`) chỉ dành cho thứ đang được chú
+ngoài, nên bản build không cần tải gì từ internet. Dấu bốn góc khung (lớp `.bracketed`) chỉ dành cho thứ đang được chú
 ý; dải sọc hổ phách chỉ dành cho số giả.
+
+## Triển khai (Vercel)
+
+Một project Vercel: bản build React nằm trên CDN, còn `/api/*` được `vercel.json` rewrite về một Python
+Function duy nhất là `api/index.py` **ở gốc repo**. Chi tiết từng lệnh ở `PLAN.md` (Bước 7–16).
+
+- **Vì sao có `api/index.py` ở gốc:** Vercel chỉ coi file `.py` trong thư mục `api/` ở gốc repo là function.
+  File này đưa `dashboard/` lên đầu `sys.path` (code dashboard import kiểu `import settings`,
+  `from api.pages import ...`), bỏ module `api` lỡ nạp từ gốc vì trùng tên với `dashboard/api`, rồi
+  `from api.main import app`. Không sửa gì trong `dashboard/`.
+- Gói của function ở `api/requirements.txt` (đã ghim phiên bản; không uvicorn, không pyarrow, không torch),
+  Python 3.12 theo `.python-version`. Gói phải dưới 250 MB, hiện ước tính ~215 MB.
+- `vercel.json` đóng gói kèm function cả `dashboard/**` và hai file `sample_data_output1/annotations.xml`,
+  `images.zip` (chế độ giả và ảnh crop). `.vercelignore` dùng cú pháp `.gitignore`: mục chỉ ở gốc repo phải
+  có `/` ở đầu, nếu không sẽ xoá nhầm cả `dashboard/web/src`. `tests/test_vercel_config.py` canh lỗi này.
+- **Dữ liệu thật trên Vercel chỉ nhận `.csv`** (không có pyarrow để đọc `.parquet`), và nộp bằng cách commit
+  vào `dashboard/data_real/` qua một PR; merge xong Vercel tự deploy lại. Filesystem của function chỉ đọc, nên
+  không chép file lên server được như VPS. Repo đang public: chỉ commit dữ liệu đã ẩn danh.
+
+Phương án dự phòng VPS (Nginx + systemd, file mẫu trong `deploy/`): xem phụ lục của `PLAN.md`.
 
 ## Các trang
 

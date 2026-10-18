@@ -34,3 +34,12 @@ ENV/
 Thumbs.db
 .vscode/
 .idea/
+
+# Vercel CLI (vercel link tạo .vercel/ và .env.local)
+.vercel
+.env*
+!.env.example
+/_uv/
+# Sinh tự động khi vercel build từ api/requirements.txt
+/api/pyproject.toml
+/api/uv.lock
